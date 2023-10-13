@@ -26,8 +26,8 @@ Actions:
 Note: Make sure to specify the paths for 'LISTINGS_PATH' and 'ITEM_PATH' to your data files.
 """
 
-LISTINGS_PATH = '../scrape_listings/data/raw/listings_page.csv'
-ITEM_PATH = '../scrape_listings/data/raw/listings_item.csv'
+LISTINGS_PATH = '/Users/Maciek/Desktop/Mieszkania/scrape_listings/otodom_listings/scrape_listings/data/raw/listings_page.csv'
+ITEM_PATH = '/Users/Maciek/Desktop/Mieszkania/scrape_listings/otodom_listings/scrape_listings/data/raw/listings_item.csv'
 
 ####
 #FUNCTIONS
@@ -115,9 +115,9 @@ df_page['link1'] = df_page['link1'].apply(join_el)
 df_full = df_page.merge(df_item, left_on='link1', right_on='link2', how='left')
 
 # check for fully null columns
-null_cols = df_full.columns[df_full.isnull().all()]
+#null_cols = df_full.columns[df_full.isnull().all()]
 # delete the fully null columns
-df_full = df_full.drop(null_cols, axis=1)
+#df_full = df_full.drop(null_cols, axis=1)
 
 # fill remaining nulls with string 'no data'
 df_full = df_full.fillna('no data')
@@ -127,7 +127,7 @@ df_full['address'] = df_full['address'].str.split(",")
 df_full['address'] = df_full['address'].apply(insert_to_list)
 
 # split address col to separate col for each object
-address = pd.DataFrame(df_full['address'].to_list(), columns=['street', 'nbrhood', 'district', 'city', 'vvdship', 'ad_6', 'ad_7', 'ad_8'])
+address = pd.DataFrame(df_full['address'].to_list(), columns=['street', 'nbrhood', 'district', 'city', 'vvdship'] + (df_full['address'].apply(len).max()-5)*['i'])
 df_full = df_full.merge(address[['street', 'nbrhood', 'district', 'city', 'vvdship']], left_index=True, right_index=True)
 
 # convert 'price', 'area' column to integer
@@ -152,7 +152,7 @@ df_full['timestamp'] = datetime.now()
 df_full = df_full.drop(['address', 'floor'], axis=1)
 
 # save clean file to new dir
-df_full.to_csv('../scrape_listings/data/clean/listings_clean_{}.csv'.format(df_full['timestamp'].dt.strftime('%Y-%m-%d')), index=False)
+df_full.to_csv('../scrape_listings/data/clean/listings_clean_{}.csv'.format(df_full['timestamp'].dt.strftime('%Y-%m-%d')[0]), index=False)
 
 
 

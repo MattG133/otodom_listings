@@ -79,6 +79,8 @@ USER_AGENT_LIST = [
 ITEM_PIPELINES = {
     'scrape_listings.pipelines.CsvExportPipeline1': 100,
     'scrape_listings.pipelines.CsvExportPipeline2': 200,
+    'scrapy.pipelines.images.ImagesPipeline': 1,
+    'scrape_listings.pipelines.ImagePipeline': 2
 }
 #    'scrape_listings.pipelines.ScrapeListingsPipeline': 300,
 #}
@@ -86,11 +88,20 @@ CSV_EXPORT_FIELDS_ITEM1 = ['title', 'address', 'price', 'area', 'link1']
 FEED_FORMAT_ITEM1 = 'csv'
 FEED_URI_ITEM1 = 'listings_page.csv'
 
-CSV_EXPORT_FIELDS_ITEM2 = ['rooms_No', 'ownership_form', 'interior_state', 'floor', 'balcony', 'parking_space', 'listing_type', 'description', 'year_built', 'building_type', 'lift', 'link2']
+CSV_EXPORT_FIELDS_ITEM2 = ['rooms_No', 'ownership_form', 'interior_state', 'floor', 'balcony', 'parking_space', 'listing_type', 'description', 'year_built', 'building_type', 'lift', 'link2', 'listing_ID']
 FEED_FORMAT_ITEM2 = 'csv'
 FEED_URI_ITEM2 = 'listing_items.csv'
 FEED_EXPORTERS = {
     'csv': 'scrapy.exporters.CsvItemExporter',
+}
+
+IMAGES_STORE = '../scrape_listings/data/images/'
+IMAGES_EXPIRES = 30  # Set to control how long to keep images (in days)
+IMAGES_MIN_HEIGHT = 100  # Minimum height for downloaded images
+IMAGES_MIN_WIDTH = 100
+IMAGES_THUMBS = {
+    'small': (50, 50),
+    'big': (270, 270),
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

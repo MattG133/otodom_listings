@@ -6,6 +6,7 @@ from scrapy.downloadermiddlewares.httpproxy import HttpProxyMiddleware
 from scrapy.spidermiddlewares.httperror import HttpError
 from twisted.internet.error import DNSLookupError, TimeoutError, TCPTimedOutError
 import scrapy
+import hashlib
 
 class ListingsSpider(scrapy.Spider):
     name = 'listings'
@@ -17,11 +18,26 @@ class ListingsSpider(scrapy.Spider):
         },
     }
 
+    def url_to_unique_id(self, url):
+        # Create an MD5 hash object
+        hash_object = hashlib.md5()
+    
+        # Encode the URL as bytes (UTF-8 encoding)
+        url_bytes = url.encode('utf-8')
+    
+        # Update the hash object with the URL bytes
+        hash_object.update(url_bytes)
+    
+        # Get the hexadecimal representation of the hash
+        unique_id = hash_object.hexdigest()
+    
+        return unique_id
+
     def start_requests(self):
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'}
         start_urls = [
             f'https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa?viewType=listing&page={page}'
-            for page in range(1, 301)  # Generate URLs for pages 1 to 300
+            for page in range(1, 307)  # Generate URLs for pages 1 to 300
         ]
         for url in start_urls:
             yield scrapy.Request(url=url, callback=self.parse, headers=headers)
@@ -105,17 +121,39 @@ class ListingsSpider(scrapy.Spider):
         except AttributeError:
             listing_info['parking_space'] = 'N/A'
 
-        # try:
-        #     description_div = response.css('div[data-cy="adPageAdDescription"].css-1wekrze.w1lbnp621::text')
-        #     description = ' '.join(description_div.css('p::text').getall()).strip()
-        #     listing_info['description'] = description
-        # except AttributeError:
-        #     listing_info['description'] = 'N/A'
+        try:
+            description_div = response.css('div[data-cy="adPageAdDescription"] p::text').getall()
+            description = ' '.join(description_div).strip()
+            listing_info['description'] = description
+        except AttributeError:
+            listing_info['description'] = 'N/A'
+
 
         try:
             listing_info['link2'] = response.request.url
         except AttributeError:
             listing_info['link2'] = 'N/A'
+            
+        # create a uniqe ID of each listing
+        listing_info['listing_ID'] = self.url_to_unique_id(response.request.url)
+            
+        # get additional info from the second info table on the page
+        # Select the div containing the table
+        sec_table_divs = response.css('div.css-1utkgzv.e10umaf20')
+        sec_table_vals = sec_table_divs.css('div.css-1wi2w6s.enb64yk4::text').getall()
+                
+        listing_info['market'] = sec_table_vals[0].strip() if len(sec_table_vals) > 0 else 'N/A'
+        listing_info['advertiser_type'] = sec_table_vals[1].strip() if len(sec_table_vals) > 1 else 'N/A'
+        listing_info['available_from'] = sec_table_vals[2].strip() if len(sec_table_vals) > 2 else 'N/A'
+        listing_info['year_of_construction'] = sec_table_vals[3].strip() if len(sec_table_vals) > 3 else 'N/A'
+        listing_info['building_type'] = sec_table_vals[4].strip() if len(sec_table_vals) > 4 else 'N/A'
+        listing_info['windows'] = sec_table_vals[5].strip() if len(sec_table_vals) > 5 else 'N/A'
+        listing_info['elevator'] = sec_table_vals[6].strip() if len(sec_table_vals) > 6 else 'N/A'
+        listing_info['utilities'] = sec_table_vals[7].strip() if len(sec_table_vals) > 7 else 'N/A'
+        listing_info['security'] = sec_table_vals[8].strip() if len(sec_table_vals) > 8 else 'N/A'
+        listing_info['equipment'] = sec_table_vals[9].strip() if len(sec_table_vals) > 9 else 'N/A'
+        listing_info['additional_info'] = sec_table_vals[10].strip() if len(sec_table_vals) > 10 else 'N/A'
+        listing_info['building_material'] = sec_table_vals[11].strip() if len(sec_table_vals) > 11 else 'N/A'
 
         yield listing_info
 
