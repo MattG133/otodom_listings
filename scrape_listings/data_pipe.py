@@ -1,4 +1,5 @@
 import pandas as pd
+import re
 from datetime import datetime, timedelta
 
 """
@@ -98,8 +99,21 @@ def convert_to_integer(s):
         # Check for empty strings
         if numeric_str:
             return int(numeric_str)
+        else:
+            return 'N/A'
     # If the value is not a string, return it as is (or handle it differently)
     return s
+
+def convert_to_float(s):
+    '''
+    Converts object to float. The function removes non-numeric charaters by using this regex: r'\b\d+(?:\.\d+)?\b'
+    '''
+    s = s.replace(',', '.').replace(' ', '')
+    numeric_str = ''.join(re.findall(r'\b\d+(?:\.\d+)?\b', s))
+    if numeric_str:
+        return float(numeric_str)
+    else:
+        return 'N/A'
 
 ####
 #ACTIONS
@@ -115,9 +129,9 @@ df_page['link1'] = df_page['link1'].apply(join_el)
 df_full = df_page.merge(df_item, left_on='link1', right_on='link2', how='left')
 
 # check for fully null columns
-#null_cols = df_full.columns[df_full.isnull().all()]
+null_cols = df_full.columns[df_full.isnull().all()]
 # delete the fully null columns
-#df_full = df_full.drop(null_cols, axis=1)
+df_full = df_full.drop(null_cols, axis=1)
 
 # fill remaining nulls with string 'no data'
 df_full = df_full.fillna('no data')
@@ -131,10 +145,12 @@ address = pd.DataFrame(df_full['address'].to_list(), columns=['street', 'nbrhood
 df_full = df_full.merge(address[['street', 'nbrhood', 'district', 'city', 'vvdship']], left_index=True, right_index=True)
 
 # convert 'price', 'area' column to integer
-df_full['price'] = df_full['price'].apply(convert_to_integer)
+df_full['price'] = df_full['price'].apply(convert_to_float)
 
 # convert rooms_No column to integer
 df_full['rooms_No'] = df_full['rooms_No'].apply(convert_to_integer)
+df_full['district'] = df_full['district'].str.strip()
+df_full['nbrhood'] = df_full['nbrhood'].str.strip()
 
 # clean floor column
 df_full['floor'] = (df_full['floor']
@@ -144,6 +160,9 @@ df_full['floor'] = (df_full['floor']
 )
 floors = pd.DataFrame(df_full['floor'].to_list(), columns=['floor', 'building_floors']+(df_full['floor'].apply(len).max() - 2)*['i'])[['floor', 'building_floors']]
 df_full.merge(floors, left_index=True, right_index=True)
+
+# convert area column to float
+df_full['area'] = df_full['area'].str.replace(',', '.').apply(convert_to_float)
 
 # add timestamp of scraping
 df_full['timestamp'] = datetime.now()

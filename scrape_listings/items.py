@@ -10,7 +10,6 @@ class ListingsPage(scrapy.Item):
     title = scrapy.Field()
     address = scrapy.Field()
     price = scrapy.Field()
-    area = scrapy.Field()
     link1 = scrapy.Field()
     
 
@@ -39,6 +38,29 @@ class ListingItems(scrapy.Item):
     equipment = scrapy.Field()
     additional_info = scrapy.Field()
     building_material = scrapy.Field()
+    listing_ID = scrapy.Field()
+    area = scrapy.Field()
+    
+class RentListingsPage(scrapy.Item):
+    title = scrapy.Field()
+    address = scrapy.Field()
+    rent = scrapy.Field()
+    area = scrapy.Field()
+    link1 = scrapy.Field()
+    
+class RentListingItems(scrapy.Item):
+    area = scrapy.Field()
+    rooms_No = scrapy.Field()
+    floor = scrapy.Field()
+    available_from = scrapy.Field()
+    remote_service = scrapy.Field()
+    fees = scrapy.Field()
+    deposit = scrapy.Field()
+    building_type = scrapy.Field()
+    link2 = scrapy.Field()
+    balcony = scrapy.Field()
+    interior_state = scrapy.Field()
+    description = scrapy.Field()
     listing_ID = scrapy.Field()
     
 class ListingImages(scrapy.Item):

@@ -79,18 +79,34 @@ USER_AGENT_LIST = [
 ITEM_PIPELINES = {
     'scrape_listings.pipelines.CsvExportPipeline1': 100,
     'scrape_listings.pipelines.CsvExportPipeline2': 200,
+    'scrape_listings.pipelines.CsvExportPipeline3': 300,
+    'scrape_listings.pipelines.CsvExportPipeline4': 400,
     'scrapy.pipelines.images.ImagesPipeline': 1,
     'scrape_listings.pipelines.ImagePipeline': 2
 }
 #    'scrape_listings.pipelines.ScrapeListingsPipeline': 300,
 #}
-CSV_EXPORT_FIELDS_ITEM1 = ['title', 'address', 'price', 'area', 'link1']
+CSV_EXPORT_FIELDS_ITEM1 = ['title', 'address', 'price', 'link1']
 FEED_FORMAT_ITEM1 = 'csv'
 FEED_URI_ITEM1 = 'listings_page.csv'
 
-CSV_EXPORT_FIELDS_ITEM2 = ['rooms_No', 'ownership_form', 'interior_state', 'floor', 'balcony', 'parking_space', 'listing_type', 'description', 'year_built', 'building_type', 'lift', 'link2', 'listing_ID']
+CSV_EXPORT_FIELDS_ITEM2 = ['rooms_No', 'ownership_form', 'interior_state', 'floor', 'balcony', 'parking_space', 'listing_type', 'description', 'year_built', 'building_type', 'lift', 'link2', 'listing_ID', 'area']
 FEED_FORMAT_ITEM2 = 'csv'
 FEED_URI_ITEM2 = 'listing_items.csv'
+FEED_EXPORTERS = {
+    'csv': 'scrapy.exporters.CsvItemExporter',
+}
+
+CSV_EXPORT_FIELDS_ITEM3 = ['title', 'address', 'rent', 'area', 'link1']
+FEED_FORMAT_ITEM3 = 'csv'
+FEED_URI_ITEM3 = 'rent_listings_page.csv'
+FEED_EXPORTERS = {
+    'csv': 'scrapy.exporters.CsvItemExporter',
+}
+
+CSV_EXPORT_FIELDS_ITEM4 = ['area', 'rooms_No', 'floor', 'available_from', 'remote_service', 'fees', 'deposit', 'building_type', 'link2', 'balcony', 'interior_state', 'description', 'listing_ID']
+FEED_FORMAT_ITEM4 = 'csv'
+FEED_URI_ITEM4 = 'rent_listing_item.csv'
 FEED_EXPORTERS = {
     'csv': 'scrapy.exporters.CsvItemExporter',
 }

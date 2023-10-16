@@ -61,8 +61,8 @@ class ListingsSpider(scrapy.Spider):
             item['price'] = price.strip() if price else 'no info'
 
             # Extract the area of the property
-            area = listing.css('span.css-1cyxwvy.ei6hyam2:nth-child(4)::text').get()
-            item['area'] = area.strip().split()[0] if area else 'no info'
+            # area = listing.css('span.css-1cyxwvy.ei6hyam2:nth-child(4)::text').get()
+            # item['area'] = area.strip() if area else 'no info'
 
             # Extract the number of rooms in the property
             #rooms = listing.css('span.css-cyxwvy.ei6hyam2:nth-child(3)::text').get()
@@ -92,46 +92,52 @@ class ListingsSpider(scrapy.Spider):
 
         try:
             #listing_info['area'] = table_divs[0].css('div::text')[3].get().strip()
+            listing_info['area'] = table_divs[0].css('div.css-1wi2w6s.enb64yk4::text').get().strip()
+        except:
+            listing_info['area'] = 'N/A'
+
+        try:
+            #listing_info['area'] = table_divs[0].css('div::text')[3].get().strip()
             listing_info['ownership_form'] = table_divs[1].css('div.css-1wi2w6s.enb64yk4::text').get().strip()
-        except AttributeError:
+        except:
             listing_info['ownership_form'] = 'N/A'
 
         try:
             listing_info['rooms_No'] = table_divs[2].css('div.css-1wi2w6s.enb64yk4::text').get().strip()
-        except AttributeError:
+        except:
             listing_info['rooms_No'] = 'N/A'
 
         try:
             listing_info['interior_state'] = table_divs[3].css('div.css-1wi2w6s.enb64yk4::text').get().strip()
-        except AttributeError:
+        except:
             listing_info['interior_state'] = 'N/A'
 
         try:
             listing_info['floor'] = table_divs[4].css('div.css-1wi2w6s.enb64yk4::text').get().strip()
-        except AttributeError:
+        except:
             listing_info['floor'] = 'N/A'
 
         try:
             listing_info['balcony'] = table_divs[5].css('div.css-1wi2w6s.enb64yk4::text').get().strip()
-        except AttributeError:
+        except:
             listing_info['balcony'] = 'N/A'
 
         try:
             listing_info['parking_space'] = table_divs[7].css('div.css-1wi2w6s.enb64yk4::text').get().strip()
-        except AttributeError:
+        except:
             listing_info['parking_space'] = 'N/A'
 
         try:
             description_div = response.css('div[data-cy="adPageAdDescription"] p::text').getall()
             description = ' '.join(description_div).strip()
             listing_info['description'] = description
-        except AttributeError:
+        except:
             listing_info['description'] = 'N/A'
 
 
         try:
             listing_info['link2'] = response.request.url
-        except AttributeError:
+        except:
             listing_info['link2'] = 'N/A'
             
         # create a uniqe ID of each listing
@@ -141,19 +147,30 @@ class ListingsSpider(scrapy.Spider):
         # Select the div containing the table
         sec_table_divs = response.css('div.css-1utkgzv.e10umaf20')
         sec_table_vals = sec_table_divs.css('div.css-1wi2w6s.enb64yk4::text').getall()
-                
-        listing_info['market'] = sec_table_vals[0].strip() if len(sec_table_vals) > 0 else 'N/A'
-        listing_info['advertiser_type'] = sec_table_vals[1].strip() if len(sec_table_vals) > 1 else 'N/A'
-        listing_info['available_from'] = sec_table_vals[2].strip() if len(sec_table_vals) > 2 else 'N/A'
-        listing_info['year_of_construction'] = sec_table_vals[3].strip() if len(sec_table_vals) > 3 else 'N/A'
-        listing_info['building_type'] = sec_table_vals[4].strip() if len(sec_table_vals) > 4 else 'N/A'
-        listing_info['windows'] = sec_table_vals[5].strip() if len(sec_table_vals) > 5 else 'N/A'
-        listing_info['elevator'] = sec_table_vals[6].strip() if len(sec_table_vals) > 6 else 'N/A'
-        listing_info['utilities'] = sec_table_vals[7].strip() if len(sec_table_vals) > 7 else 'N/A'
-        listing_info['security'] = sec_table_vals[8].strip() if len(sec_table_vals) > 8 else 'N/A'
-        listing_info['equipment'] = sec_table_vals[9].strip() if len(sec_table_vals) > 9 else 'N/A'
-        listing_info['additional_info'] = sec_table_vals[10].strip() if len(sec_table_vals) > 10 else 'N/A'
-        listing_info['building_material'] = sec_table_vals[11].strip() if len(sec_table_vals) > 11 else 'N/A'
+        market = sec_table_divs.css('div[aria-label="Rynek"]').css('div.css-1wi2w6s.enb64yk4::text').get()
+        adv_type = sec_table_divs.css('div[aria-label="Typ ogłoszeniodawcy"]').css('div.css-1wi2w6s.enb64yk4::text').get()
+        available_from = sec_table_divs.css('div[aria-label="Dostępne od"]').css('div.css-1wi2w6s.enb64yk4::text').get()
+        year_of_construction = sec_table_divs.css('div[aria-label="Rok budowy"]').css('div.css-1wi2w6s.enb64yk4::text').get()
+        building_type = sec_table_divs.css('div[aria-label="Rodzaj zabudowy"]').css('div.css-1wi2w6s.enb64yk4::text').get()
+        windows = sec_table_divs.css('div[aria-label="Okna"]').css('div.css-1wi2w6s.enb64yk4::text').get()
+        elevator = sec_table_divs.css('div[aria-label="Winda"]').css('div.css-1wi2w6s.enb64yk4::text').get()
+        utilities = sec_table_divs.css('div[aria-label="Media"]').css('div.css-1wi2w6s.enb64yk4::text').get()
+        security = sec_table_divs.css('div[aria-label="Zabezpieczenia"]').css('div.css-1wi2w6s.enb64yk4::text').get()
+        equipment = sec_table_divs.css('div[aria-label="Wyposażenie"]').css('div.css-1wi2w6s.enb64yk4::text').get()
+        additional_info = sec_table_divs.css('div[aria-label="Informacje dodatkowe"]').css('div.css-1wi2w6s.enb64yk4::text').get()
+        building_material = sec_table_divs.css('div[aria-label="Materiał budynku"]').css('div.css-1wi2w6s.enb64yk4::text').get()
+        listing_info['market'] = market if market else 'N/A'#sec_table_vals[0].strip() if len(sec_table_vals) > 0 else 'N/A'
+        listing_info['advertiser_type'] = adv_type if adv_type else 'N/A' #sec_table_vals[1].strip() if len(sec_table_vals) > 1 else 'N/A'
+        listing_info['available_from'] = available_from if available_from else 'N/A' #sec_table_vals[2].strip() if len(sec_table_vals) > 2 else 'N/A'
+        listing_info['year_of_construction'] = year_of_construction if year_of_construction else 'N/A' #sec_table_vals[3].strip() if len(sec_table_vals) > 3 else 'N/A'
+        listing_info['building_type'] = building_type if building_type else 'N/A' # sec_table_vals[4].strip() if len(sec_table_vals) > 4 else 'N/A'
+        listing_info['windows'] = windows if windows else 'N/A' #sec_table_vals[5].strip() if len(sec_table_vals) > 5 else 'N/A'
+        listing_info['elevator'] = elevator if elevator else 'N/A' #sec_table_vals[6].strip() if len(sec_table_vals) > 6 else 'N/A'
+        listing_info['utilities'] = utilities if utilities else 'N/A' #sec_table_vals[7].strip() if len(sec_table_vals) > 7 else 'N/A'
+        listing_info['security'] = security if security else 'N/A' #sec_table_vals[8].strip() if len(sec_table_vals) > 8 else 'N/A'
+        listing_info['equipment'] = equipment if equipment else 'N/A' #sec_table_vals[9].strip() if len(sec_table_vals) > 9 else 'N/A'
+        listing_info['additional_info'] = additional_info if additional_info else 'N/A' #sec_table_vals[10].strip() if len(sec_table_vals) > 10 else 'N/A'
+        listing_info['building_material'] = building_material if building_material else 'N/A' #sec_table_vals[11].strip() if len(sec_table_vals) > 11 else 'N/A'
 
         yield listing_info
 
